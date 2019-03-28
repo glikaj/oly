@@ -23,12 +23,10 @@ Documentation
 Reporting Bugs, and Viewing the Source Repository
 ---------------------------------------------------------------
 
-Please report bugs in the `Github issue tracker
-<https://github.com/glikaj/oly/issues>`_.
+Please report bugs in the [Github issue tracker](https://github.com/glikaj/oly/issues)
 
-You can view the source repository for supervisor via
-`https://github.com/glikaj/oly
-<https://github.com/glikaj/supervisor>`_.
+You can view the source repository for supervisor via [https://github.com/glikaj/oly](https://github.com/glikaj/oly)
+
 
 Contributing
 ------------
