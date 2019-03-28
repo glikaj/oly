@@ -1,4 +1,4 @@
 include LICENSE
 include README.md
 include oly/version.txt
-recursive-include oly/tools *.py
+recursive-include oly/tools *
