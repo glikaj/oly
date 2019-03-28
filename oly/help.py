@@ -1,10 +1,15 @@
-from pyfiglet import Figlet
 from collections import OrderedDict
 from .utils import Clr, Utils
 from .config import Config
 
-f = Figlet(font='slant')
-oly_banner = f.renderText("Oly")
+oly_banner = """
+   ____  __
+  / __ \/ /_  __
+ / / / / / / / /
+/ /_/ / / /_/ /
+\____/_/\__, /
+       /____/
+"""
 
 
 class Help:

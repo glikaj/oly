@@ -25,7 +25,7 @@ Reporting Bugs, and Viewing the Source Repository
 
 Please report bugs in the [Github issue tracker](https://github.com/glikaj/oly/issues)
 
-You can view the source repository for supervisor via [https://github.com/glikaj/oly](https://github.com/glikaj/oly)
+You can view the source repository for oly via [https://github.com/glikaj/oly](https://github.com/glikaj/oly)
 
 
 Contributing
