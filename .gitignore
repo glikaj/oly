@@ -8,3 +8,4 @@ bin
 *.pyo
 *.swp
 /dist/
+/build/
