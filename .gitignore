@@ -1,0 +1,9 @@
+.DS_Store
+.idea
+venv*/
+bin
+*.egg-info
+*.log
+*.pyc
+*.pyo
+*.swp
