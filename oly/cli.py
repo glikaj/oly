@@ -1,14 +1,11 @@
-import os
-import subprocess
 import sys
 import getopt
+import click
 
 from .docker import Docker
 from .help import Help
 from .utils import Clr, Utils
-from .config import Config, SysConfig
-from .bitbucket import BitBucketApi
-
+from .config import Config
 
 def oly(argv):
     try:
@@ -19,25 +16,9 @@ def oly(argv):
         for opt, arg in opts:
             if opt in ("-h", "--help"):
                 Help().get_help()
-                sys.exit()
+                sys.exit(0)
             elif opt in ("-v", "--version"):
-                curr_ver = Help.VERSION
-                new_ver = curr_ver
-                user = SysConfig().get_bit_bucket_username()
-                password = SysConfig().get_bit_bucket_pass()
-                bb = BitBucketApi(user, password).get_repo_last_tag(Utils.BASE_NAME)
-
-                if bb:
-                    new_ver = bb[0]['name']
-
-                print(curr_ver)
-                print(new_ver)
-
-
-                if new_ver != curr_ver:
-                    print('New version is available (' + Clr.WARNING + new_ver + Clr.RESET + '). Run "' + Clr.OK + 'oly self-update' + Clr.RESET + '" to update')
-                else:
-                    print(Help.VERSION)
+                print(Help.VERSION)
                 exit(0)
 
         if len(args) == 0:
@@ -51,48 +32,11 @@ def oly(argv):
 
         # config
         if len(args) == 1 and args[0] == 'config':
-            SysConfig().setup()
+            Config().configure()
             exit(0)
-
-        # self update
-        if args[0] == 'self-update':
-            curr_ver = Help.VERSION
-            new_ver = curr_ver
-            user = SysConfig().get_bit_bucket_username()
-            password = SysConfig().get_bit_bucket_pass()
-            bb = BitBucketApi(user, password).get_repo_last_tag(Utils.BASE_NAME)
-
-            if bb:
-                new_ver = bb[0]['name']
-
-            if new_ver == curr_ver:
-                Clr('You are already using oly latest version ' + curr_ver + ' (stable channel).').ok()
-                print('')
-                exit(0)
-
-            print('Updating to version ' + Clr.OK + new_ver + Clr.RESET + ' (stable channel).')
-            BitBucketApi(user, password).self_update()
-            f = open(os.path.join(Utils.ROOT_DIR, 'version'), 'w+')
-            f.write(new_ver)
-            f.close()
-            print('')
-            exit(0)
-
-        # uninstall
-        if args[0] == 'uninstall':
-            try:
-                confirm = Utils.m_input('Uninstall oly: [y/N]')
-                if confirm == 'y':
-                    Docker().tools_stop([], force_recreate=True)
-                    # TODO:: also remove all images from docker
-                    uninstall = os.path.join(Utils.ROOT_DIR, 'uninstall')
-                    subprocess.check_call(uninstall, shell=True)
-                exit(0)
-            except subprocess.CalledProcessError:
-                exit(1)
 
         # check config
-        if not Config().get_sys_config():
+        if not Config.config_exists():
             print('')
             Clr('Oly is not configured, run "oly config" to setup.').error_banner()
             print('')
@@ -128,11 +72,8 @@ def oly(argv):
                 elif opt in ("-n", "--no-security"):
                     no_security = True
 
-            cnf = SysConfig().dump_config(no_security)
-            if not cnf:
-                print('')
-                Clr('Oly is not configured, run "oly config" to setup.').error_banner()
-            print('')
+            Config.dump(no_security)
+            click.echo()
             exit(0)
 
         # TOOLS
@@ -141,6 +82,7 @@ def oly(argv):
                 tools_args = sys.argv[3:]
                 force_recreate = False
                 opts1, args1 = getopt.getopt(tools_args, 'ha', ['help', 'all', 'force-recreate'])
+                tools = Config().read_config()['tools']
                 if args[1] in ('run', 'stop'):
                     if '--force-recreate' in tools_args:
                         force_recreate = True
@@ -148,14 +90,14 @@ def oly(argv):
                     if len(args) == 2 and not opts1:
                         confirm = Utils.m_input(
                             str(args[1]).capitalize() + ' ' + Clr.OK + ', '.join(
-                                Config().get_available_tools()) + Clr.RESET + ': [n/Y]'
+                                tools) + Clr.RESET + ': [n/Y]'
                         )
                         if confirm in ['y', '']:
                             getattr(o, 'tools_' + args[1])([], force_recreate=force_recreate)
                         exit(0)
                     if len(args) > 2 and not opts1:
                         for tool_name in tools_args:
-                            if tool_name not in Config().get_available_tools():
+                            if tool_name not in Config().read_config()['tools']:
                                 Clr("Tool '" + tool_name + "' does not exist!").warn()
                                 tools_args.remove(tool_name)
 
@@ -169,7 +111,7 @@ def oly(argv):
                         exit(0)
 
                 for tool_name in tools_args:
-                    if tool_name not in Config().get_available_tools():
+                    if tool_name not in tools:
                         Clr("Tool '" + tool_name + "' does not exist!").warn()
                         tools_args.remove(tool_name)
 

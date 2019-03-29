@@ -1,9 +1,5 @@
 import os
-import shutil
 import sys
-
-from oly.docker import Docker
-from oly.utils import Utils
 
 py_version = sys.version_info[:2]
 
@@ -12,22 +8,9 @@ if py_version < (2, 7):
 elif (3, 0) < py_version < (3, 4):
     raise RuntimeError('On Python 3, Supervisor requires Python 3.4 or later')
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-
-
-if not os.path.isdir(Utils.OLY_HOME):
-    os.mkdir(Utils.OLY_HOME)
-
-if not os.path.isdir(Utils.TOOLS_DIR):
-    shutil.copytree(os.path.join('oly', 'tools'), Utils.TOOLS_DIR)
-
-
-if not os.path.isdir(Utils.PROJECTS_DIR):
-    os.mkdir(Utils.PROJECTS_DIR)
-
-Docker.create_network()
 
 version_txt = os.path.join(here, 'oly', 'version.txt')
 oly_version = open(version_txt).read().strip()
@@ -40,33 +23,14 @@ setup(
     version=oly_version,
     author="Genci Likaj",
     author_email="genci.likaj@gmail.com",
+    description="Oly Cli",
+    long_description=long_description,
     license='MIT',
-    packages=[
-        'oly',
-        'oly.tools',
-        'oly.tools.mysql',
-        'oly.tools.postgres',
-        'oly.tools.mongo',
-        'oly.tools.rabbitmq',
-        'oly.tools.redis',
-        'oly.tools.swagger',
-    ],
+    packages=find_packages(),
     package_dir={'oly': 'oly'},
-    package_data={
-        'oly': ['*.txt'],
-        'oly.tools.mysql': ['*'],
-        'oly.tools.postgres': ['*'],
-        'oly.tools.mongo': ['*'],
-        'oly.tools.rabbitmq': ['*'],
-        'oly.tools.redis': ['*'],
-        'oly.tools.swagger': ['*'],
-    },
     install_requires=['click', 'requests', 'tabulate'],
-    entry_points={
-        'console_scripts': ['oly = oly.cli:start']
-    },
-    description = "Oly Cli",
-    long_description = long_description,
+    include_package_data=True,
+    zip_safe=False,
     long_description_content_type = "text/markdown",
     url = "https://github.com/glikaj/oly",
     classifiers = [
@@ -88,4 +52,7 @@ setup(
         'Tracker': 'https://github.com/glikaj/oly/issues',
     },
     keywords='cli development console docker',
+    entry_points={
+        'console_scripts': ['oly = oly.cli:start']
+    },
 )

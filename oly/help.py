@@ -31,9 +31,7 @@ class Help:
         ('package', 'Setup package.'),
         ('status', 'Tools and services statuses'),
         ('down', 'Bring everything down'),
-        ('self-update', 'Updates Oly to latest version.'),
         ('dump-config', 'Prints out the configuration'),
-        ('uninstall', 'Uninstall oly')
     ])
     SERVICES_ARGUMENTS = OrderedDict([
         ('add', {
@@ -116,7 +114,7 @@ class Help:
         print(self.FOOTER)
 
         # config warn
-        if not Config().sys_config_exists():
+        if not Config().read_config():
             Clr('Oly is not configured, run "oly config" to setup.').error_banner()
             print('')
 
@@ -133,7 +131,7 @@ class Help:
 
     @staticmethod
     def list_tools():
-        data = Config().get_sys_config()
+        data = Config().read_config()
         print('')
         Clr('Available tools:').warn()
         for tool in data['tools']:
@@ -152,7 +150,7 @@ class Help:
         print(Clr.OK + "  %-20s %s" % ('--force-recreate' + Clr.RESET, 'Force recreate image'))
         print('')
         Clr('Arguments:').warn()
-        for tool in Config().get_available_tools():
+        for tool in Config().read_config()['tools']:
             print(Clr.OK + "  %-20s %s" % (tool + Clr.RESET, str(args[1]).capitalize() + ' ' + tool))
         print('')
 

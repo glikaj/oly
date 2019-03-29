@@ -22,18 +22,18 @@ class Docker:
 
     def tools_run(self, tools, **kwargs):
         if len(tools) == 0:
-            tools = Config().get_available_tools()
+            tools = Config().read_config()['tools']
 
         for tool in tools:
-            kwargs['file'] = os.path.join(Config().TOOLS_DIR, tool, tool + '.yml')
+            kwargs['file'] = os.path.join(Utils.TOOLS_DIR, tool, tool + '.yml')
             self._run(tool, **kwargs)
 
     def tools_stop(self, tools, **kwargs):
         if len(tools) == 0:
-            tools = Config().get_available_tools()
+            tools = Config().read_config()['tools']
 
         for tool in tools:
-            kwargs['file'] = os.path.join(Config().TOOLS_DIR, tool, tool + '.yml')
+            kwargs['file'] = os.path.join(Utils.TOOLS_DIR, tool, tool + '.yml')
             self._stop(tool, **kwargs)
 
     def tools_ls(self, tools, **kwargs):
@@ -42,7 +42,7 @@ class Docker:
     @staticmethod
     def tools_status(tools, **kwargs):
         if len(tools) == 0:
-            tools = Config().get_available_tools()
+            tools = Config().read_config()['tools']
         status = {"running": [], "stopped": []}
         for tool in tools:
             command = 'docker ps --filter status=running --filter name=' \
@@ -70,10 +70,10 @@ class Docker:
     @staticmethod
     def tools_update(tools, **kwargs):
         if len(tools) == 0:
-            tools = Config().get_available_tools()
+            tools = Config().read_config()['tools']
 
         for tool in tools:
-            tool_file = os.path.join(Config().TOOLS_DIR, tool, tool + '.yml')
+            tool_file = os.path.join(Utils.TOOLS_DIR, tool, tool + '.yml')
             command = 'docker ps --filter status=running --filter name=' \
                       + tool + ' --format \'{{.ID}}\\t{{.Names}}\''
             process = subprocess.check_output(command, shell=True).decode(sys.stdout.encoding).strip()
@@ -250,7 +250,7 @@ class Docker:
 
     @staticmethod
     def remove_tools():
-        tools = Config().get_available_tools()
+        tools = Config().read_config()['tools']
         for tool in tools:
             print('Removing ' + tool)
             try:
@@ -347,7 +347,7 @@ class Docker:
         try:
             subprocess.check_output(command, shell=True)
         except subprocess.CalledProcessError as err:
-            output = err.output
+            output = err.output.decode(sys.stdout.encoding).strip()
             return output
 
     def _run(self, service, **kwargs):

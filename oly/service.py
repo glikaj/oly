@@ -27,7 +27,7 @@ class Service:
 
     def git_service_update(self, service_dir='./'):
         branch = self.git_get_service_working_branch(service_dir)
-        git_command = self._git_command(service_dir, 'pull origin ' + branch)
+        git_command = self._git_command(service_dir, 'pull origin ' + str(branch))
         git_process = subprocess.check_output(git_command, shell=True)
         print(git_process)
 

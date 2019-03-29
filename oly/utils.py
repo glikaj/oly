@@ -2,11 +2,7 @@ import os
 import shutil
 import json
 import sys
-
 import click
-
-ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-HOME = os.getenv('HOME')
 
 
 class Utils:
@@ -18,7 +14,7 @@ class Utils:
     OLY_HOME = os.path.join(HOME, '.oly')
     ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     LIBS_DIR = os.path.abspath(os.path.dirname(__file__))
-    SYS_CONFIG_FILE = os.path.join(OLY_HOME, 'config.json')
+    CONFIG_FILE = os.path.join(OLY_HOME, 'config.json')
     TOOLS_DIR = os.path.join(OLY_HOME, 'tools')
     PROJECTS_DIR = os.path.join(HOME, 'oly-projects')
     SERVICES_PREFIX = 'oly_'
@@ -29,7 +25,7 @@ class Utils:
     def is_json(my_json):
         try:
             json.loads(my_json)
-        except ValueError as e:
+        except ValueError:
             return False
         return True
 
@@ -114,6 +110,7 @@ class Clr:
         print(self.FAIL + msg_prefix + self.RESET + self.message)
 
     def error_banner(self):
+        click.echo()
         max_len = 0
         text = ''
         if '\n' in self.message:
@@ -135,6 +132,7 @@ class Clr:
         print(self.MARK_ERROR + ' ' * (max_len + 2) + self.RESET)
         print(text.rstrip('\n'))
         print(self.MARK_ERROR + ' ' * (max_len + 2) + self.RESET)
+        click.echo()
 
     def fatal(self):
         self.error('Fatal: ')

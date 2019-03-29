@@ -1,7 +1,7 @@
 import os
 from collections import OrderedDict
 
-from .config import SysConfig
+from .config import Config
 from .utils import Utils, Clr
 from .bitbucket import BitBucketApi
 
@@ -47,8 +47,8 @@ class Setup:
             if service:
 
                 if not os.path.exists(service_dir):
-                    user = SysConfig().get_bit_bucket_username()
-                    password = SysConfig().get_bit_bucket_pass()
+                    user = Config().get_bit_bucket_username()
+                    password = Config().get_bit_bucket_pass()
                     print('Fetch service from bit-bucket...')
                     repo = BitBucketApi(user, password).get_repos(query_filter='name ~ "' + service + '"')
 
