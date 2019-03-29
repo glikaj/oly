@@ -15,6 +15,7 @@ class Config:
     def configure(self):
         self._create_oly_home()
         self.install_tools()
+        self._create_create_projects_dir()
         config = self.read_config()
         if not config:
             config = self._config_mock()
@@ -84,22 +85,26 @@ class Config:
             credentials['username'] = config['bit-bucket']['username']
             credentials['password'] = config['bit-bucket']['password']
             credentials['owner'] = config['bit-bucket']['owner']
+        try:
+            bb_owner = Utils.m_input(
+                'BitBucket owner ' + Clr.WARNING + '[' + credentials['owner'] + ']' + Clr.RESET + ': ')
+            bb_user = Utils.m_input(
+                'BitBucket username ' + Clr.WARNING + '[' + credentials['username'] + ']' + Clr.RESET + ': ')
 
-        bb_owner = Utils.m_input(
-            'BitBucket owner ' + Clr.WARNING + '[' + credentials['owner'] + ']' + Clr.RESET + ': ')
-        bb_user = Utils.m_input(
-            'BitBucket username ' + Clr.WARNING + '[' + credentials['username'] + ']' + Clr.RESET + ': ')
+            if bb_user:
+                credentials['username'] = str(bb_user).strip()
 
-        if bb_user:
-            credentials['username'] = str(bb_user).strip()
+            if bb_owner:
+                credentials['owner'] = str(bb_owner).strip()
 
-        if bb_owner:
-            credentials['owner'] = str(bb_owner).strip()
+            bb_pass = getpass('BitBucket password ' + Clr.WARNING + '[' + Utils.cli_obfuscate(credentials['password']) + ']' + Clr.RESET + ': ')
 
-        bb_pass = getpass('BitBucket password ' + Clr.WARNING + '[' + Utils.cli_obfuscate(credentials['password']) + ']' + Clr.RESET + ': ')
-
-        if bb_pass:
-            credentials['password'] = str(bb_pass)
+            if bb_pass:
+                credentials['password'] = str(bb_pass)
+        except KeyboardInterrupt:
+            print('\n' + Clr.WARNING + 'Aborted!' + Clr.RESET)
+            print('')
+            exit(0)
 
         # validate bit-bucket credentials
         if credentials['username'] and credentials['password']:
@@ -115,6 +120,11 @@ class Config:
     def _create_oly_home():
         if not os.path.isdir(Utils.OLY_HOME):
             os.mkdir(Utils.OLY_HOME)
+
+    @staticmethod
+    def _create_create_projects_dir():
+        if not os.path.isdir(Utils.PROJECTS_DIR):
+            os.mkdir(Utils.PROJECTS_DIR)
 
     def _create_empty_config(self):
         config_file = open(Utils.CONFIG_FILE, 'w')
