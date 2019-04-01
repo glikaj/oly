@@ -58,7 +58,7 @@ class Config:
             elif force:
                 shutil.rmtree(Utils.TOOLS_DIR)
                 shutil.copytree(pkg_tools_dir, Utils.TOOLS_DIR)
-        except OSError, e:
+        except OSError as e:
             msg = e.strerror
             if e.errno == 17:
                 msg = 'The tools directory already exist, run "oly config --force-install-tools" to remove and install again'

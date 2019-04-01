@@ -46,10 +46,35 @@ class Utils:
     def input_with_help(self, question, prompt, *answers):
         print(question)
         for i, answer in enumerate(answers, 1):
-            print('  ' + str(i), '-', Clr.OK + answer + Clr.RESET)
+            print('  ' + str(i) + ' - ' + Clr.OK + answer + Clr.RESET)
 
-        print
+        print('')
         return self.m_input(prompt)
+
+    @staticmethod
+    def resolve_service_from_input(mtype, service, p_list):
+        service = str(service).strip()
+        if not service:
+            return
+        if service.isdigit():
+            try:
+                service = list(p_list).pop(int(service) - 1)
+            except IndexError:
+                print(str(mtype).capitalize() + ' with index ' + Clr.WARNING + service + Clr.RESET + ' does not exist!')
+                return
+        else:
+            try:
+                if isinstance(p_list, list) and service in p_list:
+                    service = service
+                elif isinstance(p_list, dict):
+                    service = p_list[service]
+                else:
+                    print(str(mtype).capitalize() + ' ' + Clr.WARNING + service + Clr.RESET + ' does not exist!')
+                    return
+            except KeyError:
+                print(str(mtype).capitalize() + ' ' + Clr.WARNING + service + Clr.RESET + ' does not exist!')
+                return
+        return str(service).strip()
 
     @staticmethod
     def empty_dir(mdir):

@@ -118,9 +118,17 @@ class Docker:
                 self._run_all(mtype, **kwargs)
                 exit(0)
 
+            m = []
             if services:
                 for service in services:
-                    getattr(self, '_run_' + mtype)(service, **kwargs)
+                    service = Utils.resolve_service_from_input(mtype, service, p_list)
+                    if service not in m:
+                        if service:
+                            getattr(self, '_run_' + mtype)(service, **kwargs)
+                    else:
+                        # skip more same entries
+                        continue
+                    m.append(service)
                 exit(0)
             else:
                 exit(0)
@@ -153,9 +161,17 @@ class Docker:
                 self._stop_all(mtype, **kwargs)
                 exit(0)
 
+            m = []
             if services:
                 for service in services:
-                    getattr(self, '_stop_' + mtype)(service, **kwargs)
+                    service = Utils.resolve_service_from_input(mtype, service, p_list)
+                    if service not in m:
+                        if service:
+                            getattr(self, '_stop_' + mtype)(service, **kwargs)
+                    else:
+                        # skip more same entries
+                        continue
+                    m.append(service)
                 exit(0)
             else:
                 exit(0)
@@ -166,6 +182,49 @@ class Docker:
         elif services:
             for service in services:
                 getattr(self, '_stop_' + mtype)(service, **kwargs)
+            exit(0)
+        exit(0)
+
+    def service_update(self, mtype, services, **kwargs):
+        p_list = []
+        if mtype == 'package':
+            p_list = Setup().package_list()
+        elif mtype == 'service':
+            p_list = Setup().all_services_list(plain=True)
+
+        if not services and ('--all' not in list(kwargs.keys()) and '-a' not in list(kwargs.keys())):
+            services = Utils().input_with_help(
+                'Select one or more ' + mtype + 's to update or type '
+                + Clr.OK + 'all' + Clr.RESET + ' to update them all.',
+                str(mtype).capitalize() + 's: ',
+                *p_list
+            ).strip().split(' ')
+
+            if 'all' in services:
+                self._run_all(mtype, **kwargs)
+                exit(0)
+
+            m = []
+            if services:
+                for service in services:
+                    service = Utils.resolve_service_from_input(mtype, service, p_list)
+                    if service not in m:
+                        if service:
+                            getattr(self, '_update_' + mtype)(service, **kwargs)
+                    else:
+                        # skip more same entries
+                        continue
+                    m.append(service)
+                exit(0)
+            else:
+                exit(0)
+
+        elif '--all' in list(kwargs.keys()) or '-a' in list(kwargs.keys()):
+            self._run_all(mtype, **kwargs)
+            exit(0)
+        elif services:
+            for service in services:
+                getattr(self, '_update_' + mtype)(service, **kwargs)
             exit(0)
         exit(0)
 
@@ -225,9 +284,17 @@ class Docker:
                 self._remove_all(mtype, **kwargs)
                 exit(0)
 
+            m = []
             if services:
                 for service in services:
-                    getattr(self, '_remove_' + mtype)(service, **kwargs)
+                    service = Utils.resolve_service_from_input(mtype, service, p_list)
+                    if service not in m:
+                        if service:
+                            getattr(self, '_remove_' + mtype)(service, **kwargs)
+                    else:
+                        # skip more same entries
+                        continue
+                    m.append(service)
                 exit(0)
             else:
                 exit(0)
@@ -352,9 +419,11 @@ class Docker:
 
     def _run(self, service, **kwargs):
         command = 'docker-compose -f ' + kwargs['file'] + ' up -d'
+        msg = 'Running ' + service + ' ... '
         if '--force-recreate' in kwargs or ('force_recreate' in kwargs and kwargs['force_recreate']):
             command += ' --build'
-        sys.stdout.write('Running ' + service + ' ... ')
+            msg = 'Force recreating ' + service + ' ... '
+        sys.stdout.write(msg)
         try:
             subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
             print(Clr.OK + 'OK' + Clr.RESET)
@@ -371,7 +440,7 @@ class Docker:
                 if 'FileNotFoundError' in error_msg:
                     error_msg = 'docker-composer.yml file is missing '
                 print(Clr.FAIL + 'KO ' + Clr.RESET + 'Cannot run ' + str(service) + ', ' + error_msg)
-                print()
+                print('')
 
     def _stop(self, service, **kwargs):
         if not self._is_service_running(service):
@@ -396,15 +465,19 @@ class Docker:
 
     def _remove(self, service, **kwargs):
         if Service().git_service_has_changes(service_dir=kwargs['service_dir']):
-            print()
+            print('')
             Clr('WARNING: \nService ' + service + ' have unsaved changes. \nIf you remove it, all changes will be lost!!!').error_banner()
-            print()
+            print('')
             go = input('Remove ' + service + ': [y/N] ')
             if str(go).lower() not in ['y', 'yes']:
                 exit(0)
         self._stop_service(service, force_recreate=True)
         if Service().remove_service_folder(service_dir=kwargs['service_dir']):
             print('Service ' + Clr.OK + service + Clr.RESET + ' was successfully removed')
+
+    def _update(self, service, **kwargs):
+        print(Clr.OK + 'Pulling last changes from Git for ' + service + '!' + Clr.RESET)
+        Service().git_service_update(service_dir=kwargs['service_dir'])
 
     def _run_package(self, package, **kwargs):
         files = self._get_services_composer_files()
@@ -459,6 +532,32 @@ class Docker:
                     self._stop_package(key, **kwargs)
                 elif isinstance(service, str):
                     self._stop_service(service, **kwargs)
+
+    def _update_service(self, service, **kwargs):
+        files = self._get_services_composer_files_plain()
+        if service in files and files[service]:
+            kwargs['service_dir'] = os.path.dirname(files[service])
+            self._update(service, **kwargs)
+            self._run(service, force_recreate=True, file=files[service])
+
+    def _update_package(self, package, **kwargs):
+        files = self._get_services_composer_files()
+        if package in files and files[package]:
+            for service in files[package]:
+                self._update_service(service, **kwargs)
+
+    def _update_all(self, mtype, **kwargs):
+        m_services = Setup().all_services_list()
+        if mtype == 'package':
+            for key, service in m_services.items():
+                if isinstance(service, list):
+                    self._update_package(key, **kwargs)
+        if mtype == 'service':
+            for key, service in m_services.items():
+                if isinstance(service, list):
+                    self._update_package(key, **kwargs)
+                elif isinstance(service, str):
+                    self._update_service(service, **kwargs)
 
     def _remove_service(self, service, **kwargs):
         dirs = self._get_services_dirs()
