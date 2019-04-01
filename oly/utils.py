@@ -97,10 +97,10 @@ class Utils:
             ver_search = re.search("([0-9]+\.[0-9]+\.[0-9]{1,5})$.*", process, re.IGNORECASE)
 
             if ver_search:
-                nv = str(ver_search).strip().split('.')
+                nv = str(ver_search.group(1)).strip().split('.')
 
             if nv > cv:
-                return str(ver_search).strip()
+                return str(ver_search.group(1)).strip()
         except subprocess.CalledProcessError as e:
             print(e.output)
             exit(e.returncode)
