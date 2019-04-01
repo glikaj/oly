@@ -100,7 +100,7 @@ class Utils:
                 nv = str(ver_search).strip().split('.')
 
             if nv > cv:
-                return ver_search
+                return str(ver_search).strip()
         except subprocess.CalledProcessError as e:
             print(e.output)
             exit(e.returncode)
