@@ -16,9 +16,8 @@ class Help:
     def __init__(self):
         pass
 
-    VERSION = Utils.VERSION
     HEADER = Clr.OK + oly_banner + Clr.RESET
-    COPY = Clr.OK + 'Oly ' + Clr.RESET + 'version ' + Clr.WARNING + VERSION + Clr.RESET + ' by genzo'
+    COPY = Clr.OK + 'Oly ' + Clr.RESET + 'version ' + Clr.WARNING + Utils.VERSION + Clr.RESET + ' by genzo'
     FOOTER = 'Run ' + Clr.OK + "'oly [COMMAND] --help'" + Clr.RESET + " for more information on a command.\n"
     OPTIONS = {
         '-h, --help': 'Display oly\'s help',

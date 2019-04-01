@@ -18,7 +18,13 @@ def oly(argv):
                 Help().get_help()
                 sys.exit(0)
             elif opt in ("-v", "--version"):
-                print(Help.VERSION)
+                current_ver = Utils.VERSION
+                print(current_ver)
+
+                if Utils.check_version(current_ver):
+                    print('')
+                    print('New version of oly is available. Run "pip install oly --upgrade" to update')
+                    print('')
                 exit(0)
 
         if len(args) == 0:

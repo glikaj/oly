@@ -1,8 +1,11 @@
 import os
+import re
 import shutil
 import json
+import subprocess
 import sys
 import click
+import pkg_resources
 
 
 class Utils:
@@ -19,7 +22,7 @@ class Utils:
     PROJECTS_DIR = os.path.join(HOME, 'oly-projects')
     SERVICES_PREFIX = 'oly_'
     NETWORK = 'olynet'
-    VERSION = open(os.path.join(LIBS_DIR, 'version.txt')).read().strip()
+    VERSION = pkg_resources.get_distribution("oly").version
 
     @staticmethod
     def is_json(my_json):
@@ -31,8 +34,7 @@ class Utils:
 
     @staticmethod
     def cli_obfuscate(txt):
-        t_len = len(txt)
-        return '*' * t_len
+        return '*' * len(txt)
 
     @staticmethod
     def m_input(txt):
@@ -44,8 +46,7 @@ class Utils:
     def input_with_help(self, question, prompt, *answers):
         print(question)
         for i, answer in enumerate(answers, 1):
-            # print('  ' + str(i), '-', Clr.OK + answer + Clr.RESET)
-            click.echo('  ' + str(i) + ' - ' + click.style(answer, fg='green'))
+            print('  ' + str(i), '-', Clr.OK + answer + Clr.RESET)
 
         print
         return self.m_input(prompt)
@@ -61,6 +62,25 @@ class Utils:
                     shutil.rmtree(file_path)
             except Exception as e:
                 print(e)
+
+    @staticmethod
+    def check_version(current_ver):
+        try:
+            cv = str(current_ver).strip().split('.')
+            nv = cv
+            process = subprocess.check_output('pip search oly | grep LATEST | awk \'{print $2}\'', shell=True, stderr=subprocess.STDOUT).decode(sys.stdout.encoding).strip()
+            ver_search = re.search("([0-9]+\.[0-9]+\.[0-9]{1,5})$.*", process, re.IGNORECASE)
+
+            if ver_search:
+                nv = str(ver_search).strip().split('.')
+
+            if nv > cv:
+                return ver_search
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            exit(e.returncode)
+        return False
+
 
 def merge(x, y):
     """Given two dicts, merge them into a new dict as a shallow copy."""
