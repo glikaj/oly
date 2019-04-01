@@ -24,7 +24,7 @@ def oly(argv):
                 new_ver = Utils.check_version(current_ver)
                 if new_ver:
                     print('')
-                    print('New version of oly (' + new_ver + ') is available. Run "pip install oly --upgrade" to update')
+                    print('New version of oly (' + Clr.OK + current_ver + ' => ' + new_ver + Clr.RESET + ') is available. Run "pip install oly --upgrade" to update.')
                     print('')
                 exit(0)
 
