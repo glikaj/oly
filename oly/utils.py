@@ -38,10 +38,13 @@ class Utils:
 
     @staticmethod
     def m_input(txt):
-        py_version = sys.version_info[:2]
-        if py_version <= (2, 7):
-            return raw_input(txt)
-        return input(txt)
+        try:
+            py_version = sys.version_info[:2]
+            if py_version <= (2, 7):
+                return raw_input(txt)
+            return input(txt)
+        except KeyboardInterrupt:
+            print('\nAborted!')
 
     def input_with_help(self, question, prompt, *answers):
         print(question)
