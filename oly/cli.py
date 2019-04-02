@@ -49,6 +49,44 @@ def oly(argv):
             print('')
             exit(0)
 
+        # console
+        if args[0] == 'console':
+            opts, service = getopt.getopt(args[1:], "hr", ["help", "remote"])
+            remote = False
+            for opt, arg in opts:
+                if opt in ['-h', '--help']:
+                    print(Clr.WARNING + 'Usage:' + Clr.RESET)
+                    print('  oly console [OPTIONS] [SERVICE]')
+                    print('')
+                    print(Clr.WARNING + 'Options:' + Clr.RESET)
+                    print(Clr.OK + '  -r, --remote' + Clr.RESET + '\t\tConnect to a remote container (requires rancher-cli)')
+                    print('')
+                    exit(0)
+                elif opt in ['-r', '--remote']:
+                    remote = True
+
+            Docker.console(service, remote=remote)
+            exit(0)
+
+        # log
+        if args[0] == 'log':
+            opts, service = getopt.getopt(args[1:], "hr", ["help", "remote"])
+            remote = False
+            for opt, arg in opts:
+                if opt in ['-h', '--help']:
+                    print(Clr.WARNING + 'Usage:' + Clr.RESET)
+                    print('  oly log [OPTIONS] [SERVICE]')
+                    print('')
+                    print(Clr.WARNING + 'Options:' + Clr.RESET)
+                    print(Clr.OK + '  -r, --remote' + Clr.RESET + '\t\tConnect to a remote container (requires rancher-cli)')
+                    print('')
+                    exit(0)
+                elif opt in ['-r', '--remote']:
+                    remote = True
+
+            Docker.log(service, remote=remote)
+            exit(0)
+
         # status
         if args[0] == 'status':
             Docker().tools_status([])

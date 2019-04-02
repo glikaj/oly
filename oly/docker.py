@@ -342,6 +342,148 @@ class Docker:
             return False
 
     @staticmethod
+    def console(service, remote):
+        p_list = Setup().all_services_list(plain=True)
+        command = 'docker exec -it %s sh'
+        if not remote:
+            if not service and not remote:
+                service = Utils().input_with_help(
+                    'Select a service.', 'Service: ', *p_list
+                ).strip().split(' ')
+
+                if service:
+                    service = Utils.resolve_service_from_input('service', service[0], p_list)
+                    if service:
+                        try:
+                            subprocess.call(command % service, shell=True)
+                        except subprocess.CalledProcessError as e:
+                            print(e.output)
+                    exit(0)
+                else:
+                    exit(0)
+            else:
+                try:
+                    subprocess.call(command % service[0], shell=True)
+                except subprocess.CalledProcessError as e:
+                    print(e.output)
+        else:
+            command = 'rancher ps -c'
+            if service:
+                command += '| grep %s' % service[0]
+
+            try:
+                process = subprocess.check_output(command, shell=True)
+
+                rows = process.split('\n')
+                p_list = []
+                for i, row in enumerate(rows):
+                    cols = row.split(' ')
+
+                    m_col = []
+                    for k, col in enumerate(cols):
+                        if col:
+                            m_col.append(col)
+                    p_list.append(m_col)
+
+                for row in p_list:
+                    if not row:
+                        p_list.remove(row)
+
+                fp_list = []
+                for row in p_list:
+                    fp_list.append(row[1])
+                service = Utils().input_with_help(
+                    'Select a service.', 'Service: ', *fp_list
+                ).strip().split(' ')
+
+                if service:
+                    service = Utils.resolve_service_from_input('service', service[0], fp_list)
+                    if service:
+                        command = 'rancher exec %s sh' % service
+                        try:
+                            subprocess.call(command, shell=True)
+                        except subprocess.CalledProcessError as e:
+                            print(e.output)
+                    exit(0)
+                else:
+                    exit(0)
+
+                print fp_list
+            except subprocess.CalledProcessError as e:
+                print(e.output)
+
+    @staticmethod
+    def log(service, remote):
+        p_list = Setup().all_services_list(plain=True)
+        command = 'docker logs -f --tail 100 %s'
+        if not remote:
+            if not service and not remote:
+                service = Utils().input_with_help(
+                    'Select a service.', 'Service: ', *p_list
+                ).strip().split(' ')
+
+                if service:
+                    service = Utils.resolve_service_from_input('service', service[0], p_list)
+                    if service:
+                        try:
+                            subprocess.call(command % service, shell=True)
+                        except subprocess.CalledProcessError as e:
+                            print(e.output)
+                    exit(0)
+                else:
+                    exit(0)
+            else:
+                try:
+                    subprocess.call(command % service[0], shell=True)
+                except subprocess.CalledProcessError as e:
+                    print(e.output)
+        else:
+            command = 'rancher ps -c'
+            if service:
+                command += '| grep %s' % service[0]
+
+            try:
+                process = subprocess.check_output(command, shell=True)
+
+                rows = process.split('\n')
+                p_list = []
+                for i, row in enumerate(rows):
+                    cols = row.split(' ')
+
+                    m_col = []
+                    for k, col in enumerate(cols):
+                        if col:
+                            m_col.append(col)
+                    p_list.append(m_col)
+
+                for row in p_list:
+                    if not row:
+                        p_list.remove(row)
+
+                fp_list = []
+                for row in p_list:
+                    fp_list.append(row[1])
+                service = Utils().input_with_help(
+                    'Select a service to console in.', 'Service: ', *fp_list
+                ).strip().split(' ')
+
+                if service:
+                    service = Utils.resolve_service_from_input('service', service[0], fp_list)
+                    if service:
+                        command = 'rancher logs -f %s' % service
+                        try:
+                            subprocess.call(command, shell=True)
+                        except subprocess.CalledProcessError as e:
+                            print(e.output)
+                    exit(0)
+                else:
+                    exit(0)
+
+                print fp_list
+            except subprocess.CalledProcessError as e:
+                print(e.output)
+
+    @staticmethod
     def validate_services(mtype, services, action):
         s = Setup()
         sp_list = getattr(s, mtype + '_list')()

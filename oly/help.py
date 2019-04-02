@@ -28,6 +28,8 @@ class Help:
         ('tools', 'Run tools. Run \'oly tools --help\' for more information.'),
         ('service', 'Setup services. '),
         ('package', 'Setup package.'),
+        ('console', 'Run a command on a container'),
+        ('log', 'Fetch the logs of a container'),
         ('status', 'Tools and services statuses'),
         ('down', 'Bring everything down'),
         ('dump-config', 'Prints out the configuration'),
