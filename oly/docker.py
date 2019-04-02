@@ -358,6 +358,8 @@ class Docker:
                             subprocess.call(command % service, shell=True)
                         except subprocess.CalledProcessError as e:
                             print(e.output)
+                        except KeyboardInterrupt:
+                            print('\nAborted!')
                     exit(0)
                 else:
                     exit(0)
@@ -366,6 +368,8 @@ class Docker:
                     subprocess.call(command % service[0], shell=True)
                 except subprocess.CalledProcessError as e:
                     print(e.output)
+                except KeyboardInterrupt:
+                    print('\nAborted!')
         else:
             command = 'rancher ps -c'
             if service:
@@ -404,6 +408,8 @@ class Docker:
                             subprocess.call(command, shell=True)
                         except subprocess.CalledProcessError as e:
                             print(e.output)
+                        except KeyboardInterrupt:
+                            print('\nAborted!')
                     exit(0)
                 else:
                     exit(0)
@@ -411,6 +417,8 @@ class Docker:
                 print fp_list
             except subprocess.CalledProcessError as e:
                 print(e.output)
+            except KeyboardInterrupt:
+                print('\nAborted!')
 
     @staticmethod
     def log(service, remote):
@@ -429,6 +437,8 @@ class Docker:
                             subprocess.call(command % service, shell=True)
                         except subprocess.CalledProcessError as e:
                             print(e.output)
+                        except KeyboardInterrupt:
+                            print('\nAborted!')
                     exit(0)
                 else:
                     exit(0)
@@ -437,6 +447,8 @@ class Docker:
                     subprocess.call(command % service[0], shell=True)
                 except subprocess.CalledProcessError as e:
                     print(e.output)
+                except KeyboardInterrupt:
+                    print('\nAborted!')
         else:
             command = 'rancher ps -c'
             if service:
@@ -475,6 +487,8 @@ class Docker:
                             subprocess.call(command, shell=True)
                         except subprocess.CalledProcessError as e:
                             print(e.output)
+                        except KeyboardInterrupt:
+                            print('\nAborted!')
                     exit(0)
                 else:
                     exit(0)
@@ -482,6 +496,8 @@ class Docker:
                 print fp_list
             except subprocess.CalledProcessError as e:
                 print(e.output)
+            except KeyboardInterrupt:
+                print('\nAborted!')
 
     @staticmethod
     def validate_services(mtype, services, action):

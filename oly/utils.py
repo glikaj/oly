@@ -45,6 +45,7 @@ class Utils:
             return input(txt)
         except KeyboardInterrupt:
             print('\nAborted!')
+            exit()
 
     def input_with_help(self, question, prompt, *answers):
         print(question)
