@@ -197,7 +197,7 @@ class Docker:
                 'Select one or more ' + mtype + 's to update or type '
                 + Clr.OK + 'all' + Clr.RESET + ' to update them all.',
                 str(mtype).capitalize() + 's: ',
-                *p_list
+                *self.services_with_branches_layout()
             ).strip().split(' ')
 
             if 'all' in services:
@@ -634,8 +634,9 @@ class Docker:
             print('Service ' + Clr.OK + service + Clr.RESET + ' was successfully removed')
 
     def _update(self, service, **kwargs):
-        print(Clr.OK + 'Pulling last changes from Git for ' + service + '!' + Clr.RESET)
-        Service().git_service_update(service_dir=kwargs['service_dir'])
+        print('Pulling last changes from Git for ' + Clr.OK + service + Clr.RESET)
+        if Service().git_service_update(service_dir=kwargs['service_dir']):
+            self._run(service, force_recreate=True, file=kwargs['file'])
 
     def _run_package(self, package, **kwargs):
         files = self._get_services_composer_files()
@@ -695,8 +696,8 @@ class Docker:
         files = self._get_services_composer_files_plain()
         if service in files and files[service]:
             kwargs['service_dir'] = os.path.dirname(files[service])
+            kwargs['file'] = files[service]
             self._update(service, **kwargs)
-            self._run(service, force_recreate=True, file=files[service])
 
     def _update_package(self, package, **kwargs):
         files = self._get_services_composer_files()
@@ -826,7 +827,12 @@ class Docker:
             exit(err.returncode)
         return False
 
-
+    def services_with_branches_layout(self):
+        p_list = []
+        for service, s_dir in self._get_services_dirs().items():
+            branch_name = Service().git_get_service_working_branch(s_dir)
+            p_list.append(service + Clr.WARNING + ' (' + branch_name + ')')
+        return p_list
 
 
 

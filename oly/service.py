@@ -3,7 +3,7 @@ import shutil
 import sys
 import subprocess
 
-from oly.utils import Utils
+from oly.utils import Utils, Clr
 
 
 class Service:
@@ -19,7 +19,6 @@ class Service:
     def git_service_get_changes(self, service_dir='./'):
         git_command = self._git_command(service_dir=service_dir, command='status -s')
         git_process = subprocess.check_output(git_command, shell=True, stderr=subprocess.STDOUT).decode(sys.stdout.encoding)
-
         if git_process:
             return str(git_process).strip().split('\n')
 
@@ -28,13 +27,23 @@ class Service:
     def git_service_update(self, service_dir='./'):
         branch = self.git_get_service_working_branch(service_dir)
         git_command = self._git_command(service_dir, 'pull origin ' + str(branch))
-        git_process = subprocess.check_output(git_command, shell=True)
-        print(git_process)
+        try:
+            process = subprocess.check_output(git_command, shell=True, stderr=subprocess.STDOUT).decode(sys.stdout.encoding)
+            print(process)
+            return True
+        except subprocess.CalledProcessError as err:
+            Clr(err.output).error_banner()
+            return
+
 
     def git_get_service_working_branch(self, service_dir='./'):
         git_command = self._git_command(service_dir, command=' rev-parse --abbrev-ref HEAD')
-        git_process = subprocess.check_output(git_command, shell=True, stderr=subprocess.STDOUT).decode(sys.stdout.encoding).strip()
-        return git_process
+        try:
+            git_process = subprocess.check_output(git_command, shell=True, stderr=subprocess.STDOUT).decode(
+                sys.stdout.encoding).strip()
+            return git_process
+        except subprocess.CalledProcessError as err:
+            print(err.output)
 
     def git_get_service_last_tag(self, service_dir='./'):
         git_command = self._git_command(service_dir, command='describe --abbrev=0 --tags')
