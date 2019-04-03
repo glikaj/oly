@@ -492,7 +492,6 @@ class Docker:
                 else:
                     exit(0)
 
-                print fp_list
             except subprocess.CalledProcessError as e:
                 print(e.output)
             except KeyboardInterrupt:
@@ -563,7 +562,6 @@ class Docker:
         self._stop_all('service')
         # remove network
         # remove_net_process = subprocess.check_output('docker network rm ' + NETWORK, shell=True)
-        # print remove_net_process
 
     @staticmethod
     def create_network():
