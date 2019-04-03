@@ -414,7 +414,6 @@ class Docker:
                 else:
                     exit(0)
 
-                print fp_list
             except subprocess.CalledProcessError as e:
                 print(e.output)
             except KeyboardInterrupt:
