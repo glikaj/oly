@@ -836,9 +836,9 @@ class Docker:
         p_list = []
         for service, s_dir in self._get_services_dirs().items():
             if self._is_service_running(service):
-                p_list.append(service + Clr.HEADER + ' (Running)' + Clr.RESET)
+                p_list.append('%-25s %s' % (service, Clr.OK + ' (Running)' + Clr.RESET))
             else:
-                p_list.append(service + Clr.WARNING + ' (Stopped)' + Clr.RESET)
+                p_list.append('%-25s %s' % (service, Clr.WARNING + ' (Stopped)' + Clr.RESET))
         return p_list
 
 
