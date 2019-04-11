@@ -248,14 +248,16 @@ class Docker:
         if process:
             parts = str(process).split("\n")
             if parts:
-                for row in parts:
-                    service, ports = row.strip().split('\t')
-                    if service in table_services['Name']:
-                        index = table_services['Name'].index(service)
+                for part in parts:
+                    service = part.strip().split('\t')
+                    print service
+                    if service[0] in table_services['Name']:
+                        index = table_services['Name'].index(service[0])
                         table_services['Status'].pop(index)
                         table_services['Status'].insert(index, Clr.OK + 'Up' + Clr.RESET)
-                        table_services['Ports'].pop(index)
-                        table_services['Ports'].insert(index, ports)
+                        if len(service) > 1:
+                            table_services['Ports'].pop(index)
+                            table_services['Ports'].insert(index, service[1])
 
         print(tabulate(table_services, headers='keys', tablefmt='simple'))
 
