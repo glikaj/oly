@@ -250,7 +250,6 @@ class Docker:
             if parts:
                 for part in parts:
                     service = part.strip().split('\t')
-                    print service
                     if service[0] in table_services['Name']:
                         index = table_services['Name'].index(service[0])
                         table_services['Status'].pop(index)
