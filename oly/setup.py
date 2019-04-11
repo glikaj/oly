@@ -147,7 +147,6 @@ class Setup:
     @staticmethod
     def package_list():
         packages = os.listdir(os.path.join(Utils.PROJECTS_DIR))
-        pkgs_dict = {}
         names = []
         for pkg in packages:
             if os.path.isdir(os.path.join(Utils.PROJECTS_DIR, pkg)) and 'pkg_' in pkg:
