@@ -104,14 +104,13 @@ class Docker:
         if mtype == 'package':
             p_list = Setup().package_list()
         elif mtype == 'service':
-            p_list = Setup().all_services_list(plain=True)
-
+            p_list = self.services_with_status_layout()
         if not services and ('--all' not in list(kwargs.keys()) and '-a' not in list(kwargs.keys())):
             services = Utils().input_with_help(
                 'Select one or more ' + mtype + 's to run or type '
                 + Clr.OK + 'all' + Clr.RESET + ' to run them all.',
                 str(mtype).capitalize() + 's: ',
-                *self.services_with_status_layout()
+                *p_list
             ).strip().split(' ')
 
             if 'all' in services:
@@ -121,7 +120,10 @@ class Docker:
             m = []
             if services:
                 for service in services:
-                    service = Utils.resolve_service_from_input(mtype, service, p_list)
+                    if isinstance(p_list, dict):
+                        service = Utils.resolve_service_from_input(mtype, service, p_list.keys())
+                    else:
+                        service = Utils.resolve_service_from_input(mtype, service, p_list)
                     if service not in m:
                         if service:
                             getattr(self, '_run_' + mtype)(service, **kwargs)
@@ -147,7 +149,7 @@ class Docker:
         if mtype == 'package':
             p_list = Setup().package_list()
         elif mtype == 'service':
-            p_list = Setup().all_services_list(plain=True)
+            p_list = self.services_with_status_layout()
 
         if not services and ('--all' not in list(kwargs.keys()) and '-a' not in list(kwargs.keys())):
             services = Utils().input_with_help(
@@ -164,7 +166,10 @@ class Docker:
             m = []
             if services:
                 for service in services:
-                    service = Utils.resolve_service_from_input(mtype, service, p_list)
+                    if isinstance(p_list, dict):
+                        service = Utils.resolve_service_from_input(mtype, service, p_list.keys())
+                    else:
+                        service = Utils.resolve_service_from_input(mtype, service, p_list)
                     if service not in m:
                         if service:
                             getattr(self, '_stop_' + mtype)(service, **kwargs)
@@ -190,7 +195,7 @@ class Docker:
         if mtype == 'package':
             p_list = Setup().package_list()
         elif mtype == 'service':
-            p_list = Setup().all_services_list(plain=True)
+            p_list = self.services_with_status_layout()
 
         if not services and ('--all' not in list(kwargs.keys()) and '-a' not in list(kwargs.keys())):
             services = Utils().input_with_help(
@@ -207,7 +212,10 @@ class Docker:
             m = []
             if services:
                 for service in services:
-                    service = Utils.resolve_service_from_input(mtype, service, p_list)
+                    if isinstance(p_list, dict):
+                        service = Utils.resolve_service_from_input(mtype, service, p_list.keys())
+                    else:
+                        service = Utils.resolve_service_from_input(mtype, service, p_list)
                     if service not in m:
                         if service:
                             getattr(self, '_update_' + mtype)(service, **kwargs)
@@ -270,7 +278,7 @@ class Docker:
         if mtype == 'package':
             p_list = Setup().package_list()
         elif mtype == 'service':
-            p_list = Setup().all_services_list(plain=True)
+            p_list = self.services_with_status_layout()
 
         if not services and ('--all' not in list(kwargs.keys()) and '-a' not in list(kwargs.keys())):
             services = Utils().input_with_help(
@@ -287,7 +295,10 @@ class Docker:
             m = []
             if services:
                 for service in services:
-                    service = Utils.resolve_service_from_input(mtype, service, p_list)
+                    if isinstance(p_list, dict):
+                        service = Utils.resolve_service_from_input(mtype, service, p_list.keys())
+                    else:
+                        service = Utils.resolve_service_from_input(mtype, service, p_list)
                     if service not in m:
                         if service:
                             getattr(self, '_remove_' + mtype)(service, **kwargs)
@@ -833,12 +844,14 @@ class Docker:
 
     def services_with_status_layout(self):
         """Display the list of services with status attached next to the name"""
-        p_list = []
-        for service, s_dir in self._get_services_dirs().items():
+        p_list = {}
+        for service, s_dir in sorted(self._get_services_dirs().items()):
             if self._is_service_running(service):
-                p_list.append('%-25s %s' % (service, Clr.OK + ' (Running)' + Clr.RESET))
+                # p_list[service] = service
+                p_list[service] = '%-25s %s' % (service, Clr.OK + ' (Running)' + Clr.RESET)
             else:
-                p_list.append('%-25s %s' % (service, Clr.WARNING + ' (Stopped)' + Clr.RESET))
+                # p_list[service] = service
+                p_list[service] = '%-25s %s' % (service, Clr.WARNING + ' (Stopped)' + Clr.RESET)
         return p_list
 
 

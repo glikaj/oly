@@ -152,7 +152,6 @@ class Setup:
         for pkg in packages:
             if os.path.isdir(os.path.join(Utils.PROJECTS_DIR, pkg)) and 'pkg_' in pkg:
                 name = pkg.split('pkg_')[1]
-
                 names.append(name)
         return names
 
