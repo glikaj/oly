@@ -111,7 +111,7 @@ class Docker:
                 'Select one or more ' + mtype + 's to run or type '
                 + Clr.OK + 'all' + Clr.RESET + ' to run them all.',
                 str(mtype).capitalize() + 's: ',
-                *p_list
+                *self.services_with_status_layout()
             ).strip().split(' ')
 
             if 'all' in services:
@@ -154,7 +154,7 @@ class Docker:
                 'Select one or more ' + mtype + 's to stop or type '
                 + Clr.OK + 'all' + Clr.RESET + ' to stop them all.',
                 str(mtype).capitalize() + 's: ',
-                *p_list
+                *self.services_with_status_layout()
             ).strip().split(' ')
 
             if 'all' in services:
@@ -828,7 +828,17 @@ class Docker:
         p_list = []
         for service, s_dir in self._get_services_dirs().items():
             branch_name = Service().git_get_service_working_branch(s_dir)
-            p_list.append(service + Clr.WARNING + ' (' + branch_name + ')')
+            p_list.append(service + Clr.WARNING + ' (' + branch_name + ')' + Clr.RESET)
+        return p_list
+
+    def services_with_status_layout(self):
+        """Display the list of services with status attached next to the name"""
+        p_list = []
+        for service, s_dir in self._get_services_dirs().items():
+            if self._is_service_running(service):
+                p_list.append(service + Clr.HEADER + ' (Running)' + Clr.RESET)
+            else:
+                p_list.append(service + Clr.WARNING + ' (Stopped)' + Clr.RESET)
         return p_list
 
 
