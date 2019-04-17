@@ -817,15 +817,13 @@ class Docker:
 
     @staticmethod
     def _is_service_running(service):
-        command = 'docker ps -a -f name=' + service + ' --format \'{{.ID}}\t{{.Names}}\''
+        command = 'docker ps -a -f name=' + service + ' --format \'{{.ID}}\\t{{.Names}}\' | grep -E "' + service + '$"'
         try:
             process = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode(sys.stdout.encoding).strip()
             if service in process:
                 return True
-        except subprocess.CalledProcessError as err:
-            error_msg = err.output.decode(sys.stdout.encoding).strip()
-            print(error_msg)
-            exit(err.returncode)
+        except subprocess.CalledProcessError:
+            return False
         return False
 
     def services_with_branches_layout(self):
@@ -840,10 +838,8 @@ class Docker:
         p_list = {}
         for service, s_dir in sorted(self._get_services_dirs().items()):
             if self._is_service_running(service):
-                # p_list[service] = service
                 p_list[service] = '%-25s %s' % (service, Clr.OK + ' (Running)' + Clr.RESET)
             else:
-                # p_list[service] = service
                 p_list[service] = '%-25s %s' % (service, Clr.WARNING + ' (Stopped)' + Clr.RESET)
         return p_list
 
